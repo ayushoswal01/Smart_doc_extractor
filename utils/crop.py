@@ -1,45 +1,39 @@
-import cv2
-import numpy as np
-from pyzbar.pyzbar import decode
+from flask import Flask, render_template, request
+import os
+from utils.pdf_handler import convert_pdf_to_images
+from utils.crop import extract_all_features
 
-def extract_qr_codes(image):
-    qr_codes = decode(image)
-    cropped = []
-    for qr in qr_codes:
-        x, y, w, h = qr.rect
-        cropped.append(("qr", image[y:y+h, x:x+w]))
-    return cropped
+UPLOAD_FOLDER = "uploads"
+CROP_FOLDER = "static/crops"
 
-def extract_barcodes(image):
-    barcodes = decode(image)
-    cropped = []
-    for barcode in barcodes:
-        x, y, w, h = barcode.rect
-        cropped.append(("barcode", image[y:y+h, x:x+w]))
-    return cropped
+# Ensure folders exist
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+os.makedirs(CROP_FOLDER, exist_ok=True)
 
-def extract_signatures(image):
-    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    blur = cv2.GaussianBlur(gray, (5, 5), 0)
-    _, thresh = cv2.threshold(blur, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-    contours, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    cropped = []
+@app.route("/", methods=["GET", "POST"])
+def index():
+    extracted_text = {}
+    crops = []
 
-    for cnt in contours:
-        x, y, w, h = cv2.boundingRect(cnt)
-        aspect_ratio = w / float(h)
-        area = cv2.contourArea(cnt)
+    if request.method == "POST":
+        file = request.files["doc"]
+        path = os.path.join(app.config["UPLOAD_FOLDER"], file.filename)
+        file.save(path)
 
-        if 300 < area < 4000 and 1.5 < aspect_ratio < 6:
-            sig_crop = image[y:y+h, x:x+w]
-            cropped.append(("signature", sig_crop))
+        # Convert to image(s)
+        images = convert_pdf_to_images(path) if path.lower().endswith(".pdf") else [path]
 
-    return cropped
+        # Process each image
+        for img_path in images:
+            results = extract_all_features(img_path, CROP_FOLDER)
+            crops.extend(results["images"])
+            extracted_text.update(results["texts"])
 
-def extract_all_features(image):
-    features = []
-    features += extract_qr_codes(image)
-    features += extract_barcodes(image)
-    features += extract_signatures(image)
-    return features
+    return render_template("index.html", crops=crops, extracted=extracted_text)
+
+if __name__ == "__main__":
+    # For local debugging — not used on Render
+    app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
