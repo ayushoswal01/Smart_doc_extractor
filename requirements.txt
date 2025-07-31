@@ -1,6 +1,7 @@
 Flask
-opencv-python-headless
+opencv-python
 pdf2image
 pyzbar
 Pillow
 gunicorn
+pytesseract
