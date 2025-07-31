@@ -6,3 +6,4 @@ Pillow
 pyzbar
 requests
 numpy
+gunicorn
