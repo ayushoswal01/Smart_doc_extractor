@@ -6,7 +6,6 @@ from utils.detectors import detect_and_crop
 UPLOAD_FOLDER = "uploads"
 CROP_FOLDER = "static/crops"
 
-# Ensure folders exist
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(CROP_FOLDER, exist_ok=True)
 
@@ -23,17 +22,14 @@ def index():
         path = os.path.join(app.config["UPLOAD_FOLDER"], file.filename)
         file.save(path)
 
-        # Convert to image(s)
-        images = convert_pdf_to_images(path) if path.lower().endswith(".pdf") else [path]
+        images = convert_pdf_to_images(path) if path.endswith(".pdf") else [path]
 
-        # Process each image
         for img_path in images:
-            results = extract_all_features(img_path, CROP_FOLDER)
-            crops.extend(results["images"])
-            extracted_text.update(results["texts"])
+            crop_results = detect_and_crop(img_path, CROP_FOLDER)
+            crops.extend(crop_results["images"])
+            extracted_text.update(crop_results["texts"])
 
     return render_template("index.html", crops=crops, extracted=extracted_text)
 
 if __name__ == "__main__":
-    # For local debugging — not used on Render
-    app.run(debug=True, host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    app.run(host="0.0.0.0", port=10000)
