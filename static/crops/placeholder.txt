@@ -1,0 +1,1 @@
+This folder will store cropped images (signature, barcode, text blocks).

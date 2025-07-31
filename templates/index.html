@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Smart Doc Extractor</title>
+</head>
+<body>
+    <h1>Upload Document</h1>
+    <form method="POST" enctype="multipart/form-data">
+        <input type="file" name="doc" required>
+        <button type="submit">Extract</button>
+    </form>
+
+    {% if crops %}
+        <h2>Cropped Images:</h2>
+        {% for img in crops %}
+            <img src="{{ img }}" width="200"><br><br>
+        {% endfor %}
+    {% endif %}
+
+    {% if extracted %}
+        <h2>Extracted Text:</h2>
+        <ul>
+        {% for key, val in extracted.items() %}
+            <li><b>{{ key }}:</b> {{ val }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+</body>
+</html>
