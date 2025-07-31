@@ -1,9 +1,7 @@
 [nixpkgs]
 packages = [
   "libGL",
-  "zbar",
-  "poppler_utils",
-  "ffmpeg"
+  "ffmpeg",
   "poppler_utils", "python310", "opencv4", "zbar", "tesseract", "libglvnd"
 ]
 
