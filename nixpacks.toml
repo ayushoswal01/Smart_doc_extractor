@@ -4,6 +4,7 @@ packages = [
   "zbar",
   "poppler_utils",
   "ffmpeg"
+  "poppler_utils", "python310", "opencv4", "zbar", "tesseract", "libglvnd"
 ]
 
 [phases.setup]
