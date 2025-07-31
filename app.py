@@ -2,7 +2,6 @@ from flask import Flask, render_template, request
 import os
 import cv2
 from utils.pdf_handler import convert_pdf_to_images
-from utils.crop import extract_all_features
 
 UPLOAD_FOLDER = "uploads"
 CROP_FOLDER = "static/crops"
