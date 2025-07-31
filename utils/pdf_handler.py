@@ -6,7 +6,7 @@ def convert_pdf_to_images(pdf_path):
     poppler_path = r"C:\poppler\Library\bin"
 
     # Convert PDF to images using the specified Poppler path
-    images = convert_from_path(pdf_path, poppler_path=poppler_path)
+    images = convert_from_path(pdf_path)
 
     # Save images to disk
     img_paths = []
